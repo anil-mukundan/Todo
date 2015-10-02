@@ -1,5 +1,6 @@
 package com.mukundan.www.todo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -39,6 +40,15 @@ public class MainActivity extends ActionBarActivity {
                    return true;
                }
            });
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+                i.putExtra("itemValue", todoItems.get(position));
+                i.putExtra("position", position);
+                startActivityForResult(i, 1);
+            }
+        });
         etNewItem = (EditText) findViewById(R.id.etNewItem);
     }
 
@@ -66,6 +76,19 @@ public class MainActivity extends ActionBarActivity {
             FileUtils.writeLines(file, todoItems);
         } catch (IOException e) {
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // REQUEST_CODE is defined above
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            // Extract name value from result extras
+            String newValue = data.getExtras().getString("newValue");
+            int position = data.getExtras().getInt("position", 0);
+            todoItems.set(position, newValue);
+            aTodoAdapter.notifyDataSetChanged();
+            writeItems();
         }
     }
 
